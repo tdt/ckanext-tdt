@@ -1,0 +1,10 @@
+Metadata-Version: 1.0
+Name: ckanext-tdt
+Version: 0.1
+Summary: A The DataTank extension for CKAN
+Home-page: http://thedatatank.com
+Author: Pieter Colpaert
+Author-email: pieter.colpaert@okfn.org
+License: AGPLv3
+Description: 	
+Platform: UNKNOWN

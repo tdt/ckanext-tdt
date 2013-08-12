@@ -1,0 +1,5 @@
+
+        [ckan.plugins]
+	# Add plugins here, eg
+	# myplugin=ckanext.tdt:PluginClass
+	

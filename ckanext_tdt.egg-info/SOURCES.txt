@@ -1,0 +1,10 @@
+setup.py
+ckanext/__init__.py
+ckanext/tdt/__init__.py
+ckanext_tdt.egg-info/PKG-INFO
+ckanext_tdt.egg-info/SOURCES.txt
+ckanext_tdt.egg-info/dependency_links.txt
+ckanext_tdt.egg-info/entry_points.txt
+ckanext_tdt.egg-info/namespace_packages.txt
+ckanext_tdt.egg-info/not-zip-safe
+ckanext_tdt.egg-info/top_level.txt
