@@ -26,6 +26,6 @@ setup(
 	"""
         [ckan.plugins]
 	# Add plugins here, eg
-	# myplugin=ckanext.tdt:PluginClass
+	tdt=ckanext.tdt.plugin:TDTPlugin
 	""",
 )
