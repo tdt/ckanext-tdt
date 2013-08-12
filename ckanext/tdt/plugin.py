@@ -16,8 +16,28 @@ class TDTPlugin(SingletonPlugin):
 
     def after_create(self, pkg_dict):
         """This method is called upon after a dataset package has been created.
+           It should also be updated in The DataTank
         """
+        log.info("Package has been created")
+        ## STUB
 
+        # return ???
+
+    def after_update(self, pkg_dict):
+        """This method is called upon after a dataset package has been updated.
+           It should also be updated in The DataTank
+        """
+        log.info("Package has been updated")
+        ## STUB
+
+        # return ???
+
+
+    def after_delete(self, pkg_dict):
+        """This method is called upon after a dataset package has been delete.
+           It should also be deleted in The DataTank
+        """
+        log.info("Package has been deleted")
         ## STUB
 
         # return ???
