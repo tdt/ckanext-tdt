@@ -7,6 +7,7 @@ from ckan.plugins import implements, SingletonPlugin
 
 log = getLogger(__name__)
 
+log.info("Loading TDT Plugin class")
 
 class TDTPlugin(SingletonPlugin):
     """This plugin hooks in when a data package has been added.
@@ -14,30 +15,28 @@ class TDTPlugin(SingletonPlugin):
        When a match has been found, the dataset will be added to The DataTank and the URI in CKAN will change
     """
 
-    def after_create(self, pkg_dict):
+    def after_create(self, context, pkg_dict):
         """This method is called upon after a dataset package has been created.
-           It should also be updated in The DataTank
+           It should also be created in The DataTank
         """
         log.info("Package has been created")
         ## STUB
 
-        # return ???
+        return 
 
-    def after_update(self, pkg_dict):
+    def after_update(self, context, pkg_dict):
         """This method is called upon after a dataset package has been updated.
            It should also be updated in The DataTank
         """
         log.info("Package has been updated")
         ## STUB
+        return  
 
-        # return ???
 
-
-    def after_delete(self, pkg_dict):
+    def after_delete(self, context, pkg_dict):
         """This method is called upon after a dataset package has been delete.
            It should also be deleted in The DataTank
         """
         log.info("Package has been deleted")
         ## STUB
-
-        # return ???
+        return 
