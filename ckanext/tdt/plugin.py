@@ -37,9 +37,13 @@ class TDTPlugin(p.SingletonPlugin):
         # This should change towards a configurable array of supported formats
         if(hasattr(entity, 'format') and ( entity.format.lower() == "xml" or entity.format.lower() == "json")):
             log.info("We have an XML or a JSON file! Let's do a request!")
-            r = requests.put(self.tdt_host + "/tdtadmin/resources/ckan/" + entity.id, auth=(self.tdt_user, self.tdt_pass), data="resource_type=generic&generic_type=" + entity.format.upper() + "&documentation=" + entity.description +"&uri=" + entity.url)
-            log.info(r.status_code)
-            log.info(r.headers["content-location"])
+            # !! entity.name is not necessarily set in CKAN
+            r = requests.put(self.tdt_host + "/tdtadmin/resources/ckan/" + entity.id + "/" + entity.name, auth=(self.tdt_user, self.tdt_pass), data="resource_type=generic&generic_type=" + entity.format.upper() + "&documentation=" + entity.description +"&uri=" + entity.url)
+            if(r.status_code == 200):
+                log.info(r.headers["content-location"])
+            elif (r.status_code > 200):
+                log.error("Could not add dataset \""+ entity.name +"\" to The DataTank")
+                log.error(r.status_code)
             
         return
     
