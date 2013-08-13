@@ -1,5 +1,0 @@
-
-        [ckan.plugins]
-	# Add plugins here, eg
-	tdt=ckanext.tdt.plugin:TDTPlugin
-	
