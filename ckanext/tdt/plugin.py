@@ -1,8 +1,11 @@
 import requests
 import ckan.plugins as p
+import json
+
 from ckan.logic import get_action
 from ckan import model
 from logging import getLogger
+from pylons import config
 
 log = getLogger(__name__)
 
@@ -32,44 +35,54 @@ class TDTPlugin(p.SingletonPlugin):
     def notify(self, entity, operation=None):
         # Make sure we're working with a Resource
         if isinstance(entity, model.Resource):
-            ## TODO: check whether we aren't deleting
-            self.create_tdt_source(entity)
+            if operation:
+                if operation == model.domain_object.DomainObjectOperation.deleted:
+                    self.delete_tdt_source(entity)
+                else:
+                    self.create_tdt_source(entity)
         return
 
     def can_preview(self, data_dict):
-        log.info(data_dict)
-        return True
+        """ This function will test whether the resource exists at TDT's side and if it returns a nice HTTP 200 OK
+        """
+        rid = data_dict["resource"]["id"]
+        rname = data_dict["resource"]["name"]
+        if(rname == ""):
+            rname = "unnamed"
+        tdt_uri = self.tdt_host + "/ckan/" + rid + "/" + rname + ".about"
+        r = requests.head(tdt_uri)
+        log.info(r.status_code)
+        return r.status_code == 200
 
     def preview_template(self, context, data_dict):
         return 'dataviewer/tdt.html'
 
+    def setup_template_variables(self, context, data_dict):
+        p.toolkit.c.tdt_host = self.tdt_host
+        p.toolkit.c.id = data_dict["resource"]["id"]
+        p.toolkit.c.name = data_dict["resource"]["name"]
+
+
     def create_tdt_source(self, entity):
         """This method should add a resource configuration to The DataTank and return the uri
         """
-        log.debug(entity)
         # This should change towards a configurable array of supported formats
         if(hasattr(entity, 'format') and ( entity.format.lower() == "xml" or entity.format.lower() == "json")):
-            log.info("We have an XML or a JSON file! Let's do a request!")
+            log.info("Adding to The DataTank since we have an XML or a JSON")
             # !! entity.name is not necessarily set in CKAN
             if(entity.name == ""):
                 entity.name = "unnamed"
-
             tdt_uri = self.tdt_host + "/tdtadmin/resources/ckan/" + entity.id + "/" + entity.name
             r = requests.put(tdt_uri,
                              auth=(self.tdt_user, self.tdt_pass),
                              data="resource_type=generic&generic_type=" + entity.format.upper() + "&documentation=" + entity.description +"&uri=" + entity.url)
-            
 
             if(r.status_code == 200):
                 log.info(r.headers["content-location"])
-                entity.extras["tdt-url"] = r.headers["content-location"]
-                #TODO: store the entity in the back-end of CKAN
-
-                #get_action('resource_update')(context, entity)
-
             elif (r.status_code > 200):
                 log.error("Could not add dataset \""+ entity.name +"\" to The DataTank")
                 log.error(r.status_code)
+
         return
     
     def delete_tdt_source(self,entity):
