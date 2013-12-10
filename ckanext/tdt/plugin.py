@@ -23,9 +23,9 @@ class TDTPlugin(p.SingletonPlugin):
     p.implements(p.IResourcePreview, inherit=True)
 
     def configure(self, config):
-        self.tdt_user = config.get("tdt.user","tdtadmin")
+        self.tdt_user = config.get("tdt.user","admin")
         self.tdt_host = config.get("tdt.host","http://localhost/")
-        self.tdt_pass = config.get("tdt.pass","...")
+        self.tdt_pass = config.get("tdt.pass","admin")
 
     def update_config(self, config):
         p.toolkit.add_public_directory(config, 'public')
@@ -49,7 +49,7 @@ class TDTPlugin(p.SingletonPlugin):
         rname = data_dict["resource"]["name"]
         if(rname == ""):
             rname = "unnamed"
-        tdt_uri = self.tdt_host + "/ckan/" + rid + "/" + rname + ".about"
+        tdt_uri = self.tdt_host + "/ckan/" + rid + "/" + rname
         r = requests.head(tdt_uri)
         log.info(r.status_code)
         return r.status_code == 200
@@ -72,10 +72,11 @@ class TDTPlugin(p.SingletonPlugin):
             # !! entity.name is not necessarily set in CKAN
             if(entity.name == ""):
                 entity.name = "unnamed"
-            tdt_uri = self.tdt_host + "/tdtadmin/resources/ckan/" + entity.id + "/" + entity.name
+            tdt_uri = self.tdt_host + "/api/definitions/ckan/" + entity.id + "/" + entity.name
             r = requests.put(tdt_uri,
                              auth=(self.tdt_user, self.tdt_pass),
-                             data="resource_type=generic&generic_type=" + entity.format.upper() + "&documentation=" + entity.description +"&uri=" + entity.url)
+                             data="{'description':'" + entity.description +"','uri':'" + entity.url + "'}",
+                             headers={'Content-Type' : 'application/tdt.' + entity.format.lower() })
 
             if(r.status_code == 200):
                 log.info(r.headers["content-location"])
@@ -88,6 +89,6 @@ class TDTPlugin(p.SingletonPlugin):
     def delete_tdt_source(self,entity):
         """This method removes an entity from The DataTank
         """
-        r = requests.put(self.tdt_host + "/tdtadmin/resources/ckan/" + entity.id, auth=(self.tdt_user, self.tdt_pass))
+        r = requests.put(self.tdt_host + "/api/definitions/ckan/" + entity.id, auth=(self.tdt_user, self.tdt_pass))
         log.info(r.status_code)
         return
