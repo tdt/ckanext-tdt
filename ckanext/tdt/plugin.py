@@ -50,7 +50,7 @@ class TDTPlugin(p.SingletonPlugin):
         if(rname == ""):
             rname = "unnamed"
         tdt_uri = self.tdt_host + "/ckan/" + rid + "/" + rname
-        r = requests.head(tdt_uri)
+        r = requests.get(tdt_uri)
         log.info(r.status_code)
         return r.status_code == 200
 
@@ -73,15 +73,17 @@ class TDTPlugin(p.SingletonPlugin):
             if(entity.name == ""):
                 entity.name = "unnamed"
             tdt_uri = self.tdt_host + "/api/definitions/ckan/" + entity.id + "/" + entity.name
+	    log.info(tdt_uri)
             r = requests.put(tdt_uri,
                              auth=(self.tdt_user, self.tdt_pass),
-                             data="{'description':'" + entity.description +"','uri':'" + entity.url + "'}",
+                             data=json.dumps({'description': entity.description,'uri':entity.url }),
                              headers={'Content-Type' : 'application/tdt.' + entity.format.lower() })
 
             if(r.status_code == 200):
                 log.info(r.headers["content-location"])
             elif (r.status_code > 200):
-                log.error("Could not add dataset \""+ entity.name +"\" to The DataTank")
+                log.error("Could not add dataset - \""+ entity.name +"\" - to The DataTank")
+		log.error("This is the error message: " + r.text)
                 log.error(r.status_code)
 
         return
