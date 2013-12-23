@@ -49,10 +49,18 @@ class TDTPlugin(p.SingletonPlugin):
         rname = data_dict["resource"]["name"]
         if(rname == ""):
             rname = "unnamed"
-        tdt_uri = self.tdt_host + "/ckan/" + rid + "/" + rname + ".about"
-        r = requests.head(tdt_uri)
-        log.info(r.status_code)
-        return r.status_code == 200
+
+        tdt_uri = self.tdt_host + "/ckan/" + rid + "/" + rname + ".about" # temp fix to deal with resources that have not yet the 'extar' field set
+        for key,v in data_dict.get('resource').items():
+            if key == "tdt_uri":
+                tdt_uri = v
+
+        if tdt_uri:
+            r = requests.head(tdt_uri)
+            log.info(r.status_code)
+            return r.status_code == 200
+        else:
+            return False
 
     def preview_template(self, context, data_dict):
         return 'dataviewer/tdt.html'
@@ -66,6 +74,10 @@ class TDTPlugin(p.SingletonPlugin):
     def create_tdt_source(self, entity):
         """This method should add a resource configuration to The DataTank and return the uri
         """
+
+        # WARN if this is caused by a resource update with a name change, this will create a new TDT resource,
+        # but previous one will not be deleted  -- phd, 23-12-2013
+
         # This should change towards a configurable array of supported formats
         if(hasattr(entity, 'format') and ( entity.format.lower() == "xml" or entity.format.lower() == "json")):
             log.info("Adding to The DataTank since we have an XML or a JSON")
@@ -78,6 +90,7 @@ class TDTPlugin(p.SingletonPlugin):
                              data="resource_type=generic&generic_type=" + entity.format.upper() + "&documentation=" + entity.description +"&uri=" + entity.url)
 
             if(r.status_code == 200):
+                entity.extras['tdt_uri']=tdt_uri
                 log.info(r.headers["content-location"])
             elif (r.status_code > 200):
                 log.error("Could not add dataset \""+ entity.name +"\" to The DataTank")
