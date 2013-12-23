@@ -50,7 +50,7 @@ class TDTPlugin(p.SingletonPlugin):
         if(rname == ""):
             rname = "unnamed"
 
-        tdt_uri = None
+        tdt_uri = self.tdt_host + "/ckan/" + rid + "/" + rname # temp fix to deal with resources that have not yet the 'extar' field set
         for key,v in data_dict.get('resource').items():
             if key == "tdt_uri":
                 tdt_uri = v
@@ -92,7 +92,6 @@ class TDTPlugin(p.SingletonPlugin):
                              headers={'Content-Type' : 'application/tdt.' + entity.format.lower() })
 
             if(r.status_code == 200):
-                # store the resulting TDT uri in the extras
                 entity.extras['tdt_uri']=tdt_uri
                 log.info(r.headers["content-location"])
             elif (r.status_code > 200):
@@ -108,3 +107,4 @@ class TDTPlugin(p.SingletonPlugin):
         r = requests.put(self.tdt_host + "/api/definitions/ckan/" + entity.id, auth=(self.tdt_user, self.tdt_pass))
         log.info(r.status_code)
         return
+
