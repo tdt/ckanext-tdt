@@ -49,10 +49,18 @@ class TDTPlugin(p.SingletonPlugin):
         rname = data_dict["resource"]["name"]
         if(rname == ""):
             rname = "unnamed"
-        tdt_uri = self.tdt_host + "/ckan/" + rid + "/" + rname
-        r = requests.get(tdt_uri)
-        log.info(r.status_code)
-        return r.status_code == 200
+
+        tdt_uri = None
+        for key,v in data_dict.get('resource').items():
+            if key == "tdt_uri":
+                tdt_uri = v
+
+        if tdt_uri:
+            r = requests.get(tdt_uri)
+            log.info(r.status_code)
+            return r.status_code == 200
+        else:
+            return False
 
     def preview_template(self, context, data_dict):
         return 'dataviewer/tdt.html'
@@ -66,6 +74,10 @@ class TDTPlugin(p.SingletonPlugin):
     def create_tdt_source(self, entity):
         """This method should add a resource configuration to The DataTank and return the uri
         """
+
+        # WARN if this is caused by a resource update with a name change, this will create a new TDT resource,
+        # but previous one will not be deleted  -- phd, 23-12-2013
+
         # This should change towards a configurable array of supported formats
         if(hasattr(entity, 'format') and ( entity.format.lower() == "xml" or entity.format.lower() == "json")):
             log.info("Adding to The DataTank since we have an XML or a JSON")
@@ -80,6 +92,8 @@ class TDTPlugin(p.SingletonPlugin):
                              headers={'Content-Type' : 'application/tdt.' + entity.format.lower() })
 
             if(r.status_code == 200):
+                # store the resulting TDT uri in the extras
+                entity.extras['tdt_uri']=tdt_uri
                 log.info(r.headers["content-location"])
             elif (r.status_code > 200):
                 log.error("Could not add dataset - \""+ entity.name +"\" - to The DataTank")
