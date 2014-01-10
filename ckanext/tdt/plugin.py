@@ -91,13 +91,12 @@ class TDTPlugin(p.SingletonPlugin):
                              data=json.dumps({'description': entity.description,'uri':entity.url }),
                              headers={'Content-Type' : 'application/tdt.' + entity.format.lower() })
 
-            if(r.status_code == 200):
+            if(r.status_code >= 200 and r.status_code < 300):
                 entity.extras['tdt_uri']=tdt_uri
                 log.info(r.headers["content-location"])
-            elif (r.status_code > 200):
+            else:
                 log.error("Could not add dataset - \""+ entity.name +"\" - to The DataTank")
-		log.error("This is the error message: " + r.text)
-                log.error(r.status_code)
+                log.error(str(r.status_code) + " [" +tdt_uri+ "] : "+r.text)
 
         return
     
