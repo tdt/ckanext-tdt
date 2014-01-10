@@ -51,7 +51,7 @@ class TDTPlugin(p.SingletonPlugin):
         if(rname == ""):
             rname = "unnamed"
 
-        tdt_uri = self.tdt_host + "ckan/" + rid + "/" + rname # temp fix to deal with resources that have not yet the 'extar' field set
+        tdt_uri = self.tdt_host + "ckan/" + rid
         for key,v in data_dict.get('resource').items():
             if key == "tdt_uri":
                 tdt_uri = v
@@ -85,7 +85,7 @@ class TDTPlugin(p.SingletonPlugin):
             # !! entity.name is not necessarily set in CKAN
             if(entity.name == ""):
                 entity.name = "unnamed"
-            tdt_uri = self.tdt_host + "api/definitions/ckan/" + entity.id + "/" + entity.name
+            tdt_uri = self.tdt_host + "api/definitions/ckan/" + entity.id
             log.info(tdt_uri)
             r = requests.put(tdt_uri,
                              auth=(self.tdt_user, self.tdt_pass),
@@ -93,7 +93,7 @@ class TDTPlugin(p.SingletonPlugin):
                              headers={'Content-Type' : 'application/tdt.' + entity.format.lower() })
 
             # store the field anyway even if the request fails - temp fix for 405 errors
-            entity.extras['tdt_uri']=self.tdt_host + "ckan/" + entity.id + "/" + entity.name
+            entity.extras['tdt_uri']=self.tdt_host + "ckan/" + entity.id
 
 
             if(r.status_code >= 200 and r.status_code < 300):
