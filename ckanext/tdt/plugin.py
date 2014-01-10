@@ -86,14 +86,14 @@ class TDTPlugin(p.SingletonPlugin):
             if(entity.name == ""):
                 entity.name = "unnamed"
             tdt_uri = self.tdt_host + "api/definitions/ckan/" + entity.id + "/" + entity.name
-	    log.info(tdt_uri)
+            log.info(tdt_uri)
             r = requests.put(tdt_uri,
                              auth=(self.tdt_user, self.tdt_pass),
                              data=json.dumps({'description': entity.description,'uri':entity.url }),
                              headers={'Content-Type' : 'application/tdt.' + entity.format.lower() })
 
             if(r.status_code >= 200 and r.status_code < 300):
-                entity.extras['tdt_uri']=tdt_uri
+                entity.extras['tdt_uri']=self.tdt_host + "ckan/" + entity.id + "/" + entity.name
                 log.info(r.headers["content-location"])
             else:
                 log.error("Could not add dataset - \""+ entity.name +"\" - to The DataTank")
