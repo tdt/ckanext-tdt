@@ -57,7 +57,7 @@ class TDTPlugin(p.SingletonPlugin):
 
         if tdt_uri:
             r = requests.get(tdt_uri)
-            if r.status_code != 200: log.info(r.status_code +" : "+ r.text)
+            if r.status_code != 200: log.info(str(r.status_code) +" : "+ r.text)
             return r.status_code == 200
         else:
             return False
