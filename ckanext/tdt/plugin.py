@@ -25,6 +25,7 @@ class TDTPlugin(p.SingletonPlugin):
     def configure(self, config):
         self.tdt_user = config.get("tdt.user","admin")
         self.tdt_host = config.get("tdt.host","http://localhost/")
+        #TODO make sure host always end with /
         self.tdt_pass = config.get("tdt.pass","admin")
 
     def update_config(self, config):
@@ -50,7 +51,7 @@ class TDTPlugin(p.SingletonPlugin):
         if(rname == ""):
             rname = "unnamed"
 
-        tdt_uri = self.tdt_host + "/ckan/" + rid + "/" + rname # temp fix to deal with resources that have not yet the 'extar' field set
+        tdt_uri = self.tdt_host + "ckan/" + rid + "/" + rname # temp fix to deal with resources that have not yet the 'extar' field set
         for key,v in data_dict.get('resource').items():
             if key == "tdt_uri":
                 tdt_uri = v
@@ -84,7 +85,7 @@ class TDTPlugin(p.SingletonPlugin):
             # !! entity.name is not necessarily set in CKAN
             if(entity.name == ""):
                 entity.name = "unnamed"
-            tdt_uri = self.tdt_host + "/api/definitions/ckan/" + entity.id + "/" + entity.name
+            tdt_uri = self.tdt_host + "api/definitions/ckan/" + entity.id + "/" + entity.name
 	    log.info(tdt_uri)
             r = requests.put(tdt_uri,
                              auth=(self.tdt_user, self.tdt_pass),
@@ -103,7 +104,7 @@ class TDTPlugin(p.SingletonPlugin):
     def delete_tdt_source(self,entity):
         """This method removes an entity from The DataTank
         """
-        r = requests.put(self.tdt_host + "/api/definitions/ckan/" + entity.id, auth=(self.tdt_user, self.tdt_pass))
+        r = requests.put(self.tdt_host + "api/definitions/ckan/" + entity.id, auth=(self.tdt_user, self.tdt_pass))
         log.info(r.status_code)
         return
 
