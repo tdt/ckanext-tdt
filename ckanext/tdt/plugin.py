@@ -89,12 +89,11 @@ class TDTPlugin(p.SingletonPlugin):
             log.info(tdt_uri)
             r = requests.put(tdt_uri,
                              auth=(self.tdt_user, self.tdt_pass),
-                             data=json.dumps({'description': entity.description,'uri':entity.url }),
-                             headers={'Content-Type' : 'application/tdt.' + entity.format.lower() })
+                             data=json.dumps({'description': entity.description,'uri':entity.url, 'type': entity.format.lower() }),
+                             headers={'Content-Type' : 'application/tdt.definition+json' })
 
             # store the field anyway even if the request fails - temp fix for 405 errors
             entity.extras['tdt_uri']=self.tdt_host +config.get('ckan.site_id', 'ckan').strip()+"/" + entity.id
-
 
             if(r.status_code >= 200 and r.status_code < 300):
                 log.info(r.headers["content-location"])
