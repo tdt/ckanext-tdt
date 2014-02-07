@@ -70,6 +70,7 @@ class TDTPlugin(p.SingletonPlugin):
         p.toolkit.c.tdt_host = self.tdt_host
         p.toolkit.c.id = data_dict["resource"]["id"]
         p.toolkit.c.name = data_dict["resource"]["name"]
+        p.toolkit.c.tdt_subdir = config.get('ckan.site_id', 'ckan').strip()
 
 
     def create_tdt_source(self, entity):
@@ -85,7 +86,7 @@ class TDTPlugin(p.SingletonPlugin):
             # !! entity.name is not necessarily set in CKAN
             if(entity.name == ""):
                 entity.name = "unnamed"
-            tdt_uri = self.tdt_host + "api/definitions/"+config.get('ckan.site_id', 'ckan').strip()+"/" + entity.id
+            tdt_uri = self.tdt_host + "api/definitions/" + config.get('ckan.site_id', 'ckan').strip()+"/" + entity.id
             log.info(tdt_uri)
             r = requests.put(tdt_uri,
                              auth=(self.tdt_user, self.tdt_pass),
@@ -93,7 +94,7 @@ class TDTPlugin(p.SingletonPlugin):
                              headers={'Content-Type' : 'application/tdt.' + entity.format.lower() })
 
             # store the field anyway even if the request fails - temp fix for 405 errors
-            entity.extras['tdt_uri']=self.tdt_host +config.get('ckan.site_id', 'ckan').strip()+"/" + entity.id
+            entity.extras['tdt_uri']=self.tdt_host + config.get('ckan.site_id', 'ckan').strip()+"/" + entity.id
 
 
             if(r.status_code >= 200 and r.status_code < 300):
