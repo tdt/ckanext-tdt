@@ -51,6 +51,7 @@ class TDTPlugin(p.SingletonPlugin):
         if(rname == ""):
             rname = "unnamed"
 
+        tdt_uri = None
         #tdt_uri = self.tdt_host + config.get('ckan.site_id', 'ckan').strip()+ "/" + rid
         for key,v in data_dict.get('resource').items():
             if key == "tdt_uri":
