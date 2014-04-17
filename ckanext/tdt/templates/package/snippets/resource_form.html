@@ -1,0 +1,11 @@
+{% ckan_extends %}
+
+  {% block basic_fields %}
+{{ super() }}
+
+    {% resource 'ckanext-tdt/js/tdt.js' %}
+    <div id="tdt_inputs">
+
+    </div>
+  {% endblock %}
+

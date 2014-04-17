@@ -91,9 +91,13 @@ class TDTPlugin(p.SingletonPlugin):
                 entity.name = "unnamed"
             tdt_uri = self.tdt_host + "api/definitions/" + config.get('ckan.site_id', 'ckan').strip()+"/" + entity.id
             log.info(tdt_uri)
+
+            tdt_data = {'description': entity.description or 'No description provided','uri':entity.url, 'type': entity.format.lower() }
+            for field in entity.extras : tdt_data[field] = entity.extras[field]
+
             r = requests.put(tdt_uri,
                              auth=(self.tdt_user, self.tdt_pass),
-                             data=json.dumps({'description': entity.description or 'No description provided','uri':entity.url, 'type': entity.format.lower() }),
+                             data=json.dumps(tdt_data),
                              headers={'Content-Type' : 'application/tdt.definition+json' })
 
             # store the field anyway even if the request fails - temp fix for 405 errors
