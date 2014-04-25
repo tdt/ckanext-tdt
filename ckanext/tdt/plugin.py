@@ -21,6 +21,7 @@ class TDTPlugin(p.SingletonPlugin):
     p.implements(p.IConfigurable)
     p.implements(p.IConfigurer, inherit=True)
     p.implements(p.IResourcePreview, inherit=True)
+    p.implements(p.ITemplateHelpers, inherit=True)
 
     def configure(self, config):
         self.tdt_user = config.get("tdt.user","admin")
@@ -70,6 +71,7 @@ class TDTPlugin(p.SingletonPlugin):
         return 'dataviewer/tdt.html'
 
     def setup_template_variables(self, context, data_dict):
+        p.toolkit.c.jsondump = json.dumps
         p.toolkit.c.tdt_host = self.tdt_host
         p.toolkit.c.id = data_dict["resource"]["id"]
         p.toolkit.c.name = data_dict["resource"]["name"]
@@ -93,7 +95,8 @@ class TDTPlugin(p.SingletonPlugin):
             log.info(tdt_uri)
 
             tdt_data = {'description': entity.description or 'No description provided','uri':entity.url, 'type': entity.format.lower() }
-            for field in entity.extras : tdt_data[field] = entity.extras[field]
+            for field in entity.extras :
+                if field.startswith('tdt-') and entity.extras[field]: tdt_data[field[4:]] = entity.extras[field]
 
             r = requests.put(tdt_uri,
                              auth=(self.tdt_user, self.tdt_pass),
@@ -117,4 +120,13 @@ class TDTPlugin(p.SingletonPlugin):
         r = requests.put(self.tdt_host + "api/definitions/"+config.get('ckan.site_id', 'ckan').strip()+"/" + entity.id, auth=(self.tdt_user, self.tdt_pass))
         log.info(r.status_code)
         return
+
+    def getTdtHost(self):
+        return self.tdt_host
+
+    def get_helpers(self):
+        return {
+            'jsondump' : json.dumps,
+            'tdt_host' : self.getTdtHost
+        }
 
