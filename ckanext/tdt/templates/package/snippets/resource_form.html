@@ -1,6 +1,6 @@
 {% ckan_extends %}
 
-  {% block basic_fields %}
+  {% block metadata_fields %}
     <script id="resource_content" type="application/json">{{ h.jsondump(data)|safe }}</script>
 
     {{ super() }}
