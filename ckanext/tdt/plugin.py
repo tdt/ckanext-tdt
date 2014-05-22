@@ -1,6 +1,8 @@
 import requests
 import ckan.plugins as p
 import json
+import urllib2
+import simplejson
 
 from ckan.logic import get_action
 from ckan import model
@@ -28,6 +30,11 @@ class TDTPlugin(p.SingletonPlugin):
         self.tdt_host = config.get("tdt.host","http://localhost/")
         #TODO make sure host always end with /
         self.tdt_pass = config.get("tdt.pass","admin")
+
+        req = urllib2.Request(self.tdt_host+"discovery")
+        opener = urllib2.build_opener()
+        f = opener.open(req)
+        self.tdtDiscovery = json.load(f)
 
     def update_config(self, config):
         p.toolkit.add_public_directory(config, 'public')
@@ -86,7 +93,10 @@ class TDTPlugin(p.SingletonPlugin):
         # but previous one will not be deleted  -- phd, 23-12-2013
 
         # This should change towards a configurable array of supported formats
-        if(hasattr(entity, 'format') and ( entity.format.lower() == "xml" or entity.format.lower() == "json")):
+        if( hasattr(entity, 'format') and
+            #( entity.format.lower() == "xml" or entity.format.lower() == "json")
+                entity.format.lower() in self.tdtDiscovery['resources']['definitions']['methods']['put']['body']
+          ):
             log.info("Adding to The DataTank since we have an XML or a JSON")
             # !! entity.name is not necessarily set in CKAN
             if(entity.name == ""):
