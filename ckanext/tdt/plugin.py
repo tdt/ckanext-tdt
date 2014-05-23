@@ -121,6 +121,7 @@ class TDTPlugin(p.SingletonPlugin):
             else:
                 log.error("Could not add dataset - \""+ entity.name +"\" - to The DataTank")
                 log.error(str(r.status_code) + " [" +tdt_uri+ "] : "+r.text)
+                log.error("Sent message >>> "+json.dumps(tdt_data)+" <<<")
 
         return
     
