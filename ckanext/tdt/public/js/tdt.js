@@ -24,6 +24,7 @@ $(function() {
         resourceDescriptors.then(function(descriptors) {
             var formatDescr = descriptors[format]
             if (formatDescr) {
+                $("#tdt_block").show()
                 $("#tdt_inputs").empty()
                 $.each(formatDescr.parameters, function(name, param) {
                     if ($.inArray(name, ["type", "uri", "description", "title"]) == -1) {
@@ -38,7 +39,8 @@ $(function() {
                         $("#tdt_inputs").append(inputDiv)
                     }
                 })
-            }
+            } else
+                $("#tdt_block").hide()
         })
     }
 

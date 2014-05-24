@@ -9,11 +9,13 @@
     <script>
         var TDT_HOST = "{{ h.tdt_host()|safe }}"
     </script>
-    <div class="control-group control-full">
-        <label class="control-label" for="field-enable-tdt">Use TheDataTank</label>
-        <div class="controls"><input type="checkbox" {{ "CHECKED" if 'enable-tdt' in data }} onchange="TDT.checkTDTFieldsDisplay()" id="field-enable-tdt" name="enable-tdt" placeholder="Whether to use TheDataTank to proxy the resource."></div>
+    <div id="tdt_block">
+        <div class="control-group control-full">
+            <label class="control-label" for="field-enable-tdt">Use TheDataTank</label>
+            <div class="controls"><input type="checkbox" {{ "CHECKED" if 'enable-tdt' in data }} onchange="TDT.checkTDTFieldsDisplay()" id="field-enable-tdt" name="enable-tdt" placeholder="Whether to use TheDataTank to proxy the resource."></div>
+        </div>
+        <div id="tdt_inputs">
     </div>
-    <div id="tdt_inputs">
 
     </div>
   {% endblock %}
