@@ -53,11 +53,17 @@ $(function() {
                 }
             });
 
+            this.checkTDTFieldsDisplay()
             displayFields($("#field-format").val())
 
             $("#field-format").change(function(e) {
                 displayFields(e.val)
             })
+        },
+
+        checkTDTFieldsDisplay: function() {
+            if ($("#field-enable-tdt").is(':checked')) $("#tdt_inputs").show()
+            else $("#tdt_inputs").hide()
         }
     }
 
