@@ -6,6 +6,8 @@
     {{ super() }}
 
     {% resource 'ckanext-tdt/js/tdt.js' %}
+    {% resource 'ckanext-tdt/css/tdt.css' %}
+
     <script>
         var TDT_HOST = "{{ h.tdt_host()|safe }}"
     </script>

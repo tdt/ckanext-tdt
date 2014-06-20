@@ -31,10 +31,16 @@ $(function() {
                         var tdtname = "tdt-" + name
                         var id = "field-" + tdtname
                         var inputField = $("<input type='text'>").attr("id", id).attr("name", tdtname).attr("placeholder", param.description)
+
+                        inputField.change(createInputValidator(param))
+
                         if (resource_content[tdtname] && resource_content[tdtname].length>0) inputField.val(resource_content[tdtname])
+                        inputField.change()
+
                         var inputDiv = $('<div class="control-group control-full"/>')
-                            .append($('<label class="control-label"/>').attr("for", id).text(name))
+                            .append($('<label class="control-label"/>').attr("for", id).text(param.name || name))
                             .append($('<div class="controls"/>').append(inputField))
+
 
                         $("#tdt_inputs").append(inputDiv)
                     }
@@ -42,6 +48,18 @@ $(function() {
             } else
                 $("#tdt_block").hide()
         })
+    }
+
+    var createInputValidator = function(paramDescriptor) {
+         return function(evt) {
+             var val = $(this).val()
+             var msg
+             if (paramDescriptor.required && (!val || val == '')) msg = 'Value required'
+             else if (paramDescriptor.type == 'integer' && val && isNaN(parseInt(val))) msg = 'Value must be an integer'
+
+             $(this).toggleClass("missingValue",  msg !== undefined)
+             $(this).prop('title',msg)
+         }
     }
 
     var TDT = this.TDT = {
