@@ -41,6 +41,8 @@ $(function() {
                             .append($('<label class="control-label"/>').attr("for", id).text(param.name || name))
                             .append($('<div class="controls"/>').append(inputField))
 
+                        inputDiv.toggleClass('optional', !param.required);
+
 
                         $("#tdt_inputs").append(inputDiv)
                     }

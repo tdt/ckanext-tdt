@@ -1,3 +1,7 @@
 #tdt_inputs .missingValue {
     border: 1px solid darkred;
 }
+
+#tdt_inputs .optional > * {
+    font-weight: lighter;
+}
