@@ -25,7 +25,8 @@ $(function() {
             var formatDescr = descriptors[format]
             if (formatDescr) {
                 $("#tdt_block").show()
-                $("#tdt_inputs").empty()
+                $("#tdt_required_inputs").empty()
+                $("#tdt_optional_inputs").empty()
                 $.each(formatDescr.parameters, function(name, param) {
                     if ($.inArray(name, ["type", "uri", "description", "title"]) == -1) {
                         var tdtname = "tdt-" + name
@@ -44,7 +45,10 @@ $(function() {
                         inputDiv.toggleClass('optional', !param.required);
 
 
-                        $("#tdt_inputs").append(inputDiv)
+                        if (param.required)
+                            $("#tdt_required_inputs").append(inputDiv)
+                        else
+                            $("#tdt_optional_inputs").append(inputDiv)
                     }
                 })
             } else
@@ -81,11 +85,26 @@ $(function() {
             $("#field-format").change(function(e) {
                 displayFields(e.val)
             })
+
+            this.displayOptionalInputs(true)
         },
 
         checkTDTFieldsDisplay: function() {
             if ($("#field-enable-tdt").is(':checked')) $("#tdt_inputs").show()
             else $("#tdt_inputs").hide()
+        },
+
+        displayOptionalInputs: function(toggle) {
+
+            if (toggle === undefined) toggle = !$("#tdt_optional_inputs").is(":visible")
+
+            if (toggle) {
+                $("#tdt_optional_toggle").toggleClass('displayed', true)
+                $("#tdt_optional_inputs").show()
+            } else {
+                $("#tdt_optional_toggle").toggleClass('displayed', false)
+                $("#tdt_optional_inputs").hide()
+            }
         }
     }
 

@@ -17,6 +17,10 @@
             <div class="controls"><input type="checkbox" {{ "CHECKED" if 'enable-tdt' in data }} onchange="TDT.checkTDTFieldsDisplay()" id="field-enable-tdt" name="enable-tdt" placeholder="Whether to use TheDataTank to proxy the resource."></div>
         </div>
         <div id="tdt_inputs">
+            <div id="tdt_required_inputs"></div>
+            <div id="tdt_optional_toggle" onclick="TDT.displayOptionalInputs()"><i class="icon-plus"></i>optional parameters<i class="icon-plus"></i></div>
+            <div id="tdt_optional_inputs"></div>
+        </div>
     </div>
 
     </div>

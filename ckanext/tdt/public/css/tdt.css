@@ -5,3 +5,22 @@
 #tdt_inputs .optional > * {
     font-weight: lighter;
 }
+
+#tdt_optional_toggle {
+    text-align: center;
+    font-size: 100%;
+    font-variant: small-caps;
+}
+
+#tdt_optional_toggle [class^="icon-"] {
+    text-align: center;
+    padding: 2px;
+}
+
+#tdt_optional_toggle [class^="icon-"]:before {
+    content: "\f0d8";
+}
+
+#tdt_optional_toggle.displayed [class^="icon-"]:before {
+    content: "\f0d7";
+}
