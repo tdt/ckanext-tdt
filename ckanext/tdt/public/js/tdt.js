@@ -19,7 +19,7 @@ $(function() {
 
      */
 
-    var displayFields = function(format) {
+    var displayFields = function(format, mandatoryParams) {
         format = format && format.toLowerCase()
         resourceDescriptors.then(function(descriptors) {
             var formatDescr = descriptors[format]
@@ -45,7 +45,7 @@ $(function() {
                         inputDiv.toggleClass('optional', !param.required);
 
 
-                        if (param.required)
+                        if (param.required || (mandatoryParams && $.inArray(name, mandatoryParams) != -1))
                             $("#tdt_required_inputs").append(inputDiv)
                         else
                             $("#tdt_optional_inputs").append(inputDiv)
@@ -53,7 +53,22 @@ $(function() {
                 })
             } else
                 $("#tdt_block").hide()
+
+            toggleOptionalInputs($("#tdt_required_inputs").children().length == 0)
         })
+    }
+
+    var toggleOptionalInputs = function(toggle) {
+
+        if (toggle === undefined) toggle = !$("#tdt_optional_inputs").is(":visible")
+
+        if (toggle) {
+            $("#tdt_optional_toggle").toggleClass('displayed', true)
+            $("#tdt_optional_inputs").show()
+        } else {
+            $("#tdt_optional_toggle").toggleClass('displayed', false)
+            $("#tdt_optional_inputs").hide()
+        }
     }
 
     var createInputValidator = function(paramDescriptor) {
@@ -69,7 +84,9 @@ $(function() {
     }
 
     var TDT = this.TDT = {
-        initTDT: function(tdtRootUrl) {
+        initTDT: function(tdtRootUrl, mandatoryParams) {
+            this.mandatoryParams = mandatoryParams
+
             $.ajax({
                 cache: true,
                 url: tdtRootUrl+'discovery',
@@ -80,13 +97,12 @@ $(function() {
             });
 
             this.checkTDTFieldsDisplay()
-            displayFields($("#field-format").val())
+            displayFields($("#field-format").val(), this.mandatoryParams)
 
             $("#field-format").change(function(e) {
-                displayFields(e.val)
+                displayFields(e.val, this.mandatoryParams)
             })
 
-            this.displayOptionalInputs(true)
         },
 
         checkTDTFieldsDisplay: function() {
@@ -96,18 +112,10 @@ $(function() {
 
         displayOptionalInputs: function(toggle) {
 
-            if (toggle === undefined) toggle = !$("#tdt_optional_inputs").is(":visible")
-
-            if (toggle) {
-                $("#tdt_optional_toggle").toggleClass('displayed', true)
-                $("#tdt_optional_inputs").show()
-            } else {
-                $("#tdt_optional_toggle").toggleClass('displayed', false)
-                $("#tdt_optional_inputs").hide()
-            }
+            toggleOptionalInputs(toggle)
         }
     }
 
-    TDT.initTDT(TDT_HOST)
+    TDT.initTDT(TDT_HOST, TDT_MANDATORY_PARAMS)
 
 })

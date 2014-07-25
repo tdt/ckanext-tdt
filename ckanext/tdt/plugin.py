@@ -29,6 +29,7 @@ class TDTPlugin(p.SingletonPlugin):
     def configure(self, config):
         self.tdt_user = config.get("tdt.user","admin")
         self.tdt_host = config.get("tdt.host","http://localhost/")
+        self.tdt_mandatory_params = config.get("tdt.mandatory_params","")
         #TODO make sure host always end with /
         self.tdt_pass = config.get("tdt.pass","admin")
 
@@ -82,6 +83,7 @@ class TDTPlugin(p.SingletonPlugin):
     def setup_template_variables(self, context, data_dict):
         p.toolkit.c.jsondump = json.dumps
         p.toolkit.c.tdt_host = self.tdt_host
+        p.toolkit.c.tdt_mandatory_params = self.tdt_mandatory_params
         p.toolkit.c.id = data_dict["resource"]["id"]
         p.toolkit.c.name = data_dict["resource"]["name"]
         p.toolkit.c.tdt_subdir = config.get('ckan.site_id', 'ckan').strip()
@@ -144,9 +146,13 @@ class TDTPlugin(p.SingletonPlugin):
     def getTdtHost(self):
         return self.tdt_host
 
+    def getMandatoryParams(self):
+        return self.tdt_mandatory_params
+
     def get_helpers(self):
         return {
             'jsondump' : json.dumps,
-            'tdt_host' : self.getTdtHost
+            'tdt_host' : self.getTdtHost,
+            'tdt_mandatory_params' : self.getMandatoryParams
         }
 
