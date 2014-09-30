@@ -99,8 +99,10 @@ $(function() {
             this.checkTDTFieldsDisplay()
             displayFields($("#field-format").val(), this.mandatoryParams)
 
+            var _this = this
+
             $("#field-format").change(function(e) {
-                displayFields(e.val, this.mandatoryParams)
+                displayFields(e.val, _this.mandatoryParams)
             })
 
         },
