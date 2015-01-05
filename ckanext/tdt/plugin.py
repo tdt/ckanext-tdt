@@ -16,7 +16,7 @@ class TDTPlugin(p.SingletonPlugin):
     """
 
     # inheriting from IDomainObjectModification makes sure that we get notifications about updates with resources
-    p.implements(p.IDomainObjectModification)
+    p.implements(p.IDomainObjectModification, inherit=True)
     # IConfigurable makes sure we can reuse the config class
     p.implements(p.IConfigurable)
     p.implements(p.IConfigurer, inherit=True)
