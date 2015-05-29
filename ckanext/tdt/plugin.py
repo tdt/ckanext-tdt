@@ -5,6 +5,7 @@ import urllib2
 import simplejson
 
 from ckan.logic import get_action
+import ckan.logic.action.update
 from ckan import model
 from logging import getLogger
 from pylons import config
@@ -19,12 +20,13 @@ class TDTPlugin(p.SingletonPlugin):
     """
 
     # inheriting from IDomainObjectModification makes sure that we get notifications about updates with resources
-    p.implements(p.IDomainObjectModification)
+    #p.implements(p.IDomainObjectModification)
     # IConfigurable makes sure we can reuse the config class
     p.implements(p.IConfigurable)
     p.implements(p.IConfigurer, inherit=True)
     p.implements(p.IResourcePreview, inherit=True)
     p.implements(p.ITemplateHelpers, inherit=True)
+    p.implements(p.IResourceController, inherit=True)
 
     def configure(self, config):
         self.tdt_user = config.get("tdt.user","admin")
@@ -89,7 +91,19 @@ class TDTPlugin(p.SingletonPlugin):
         p.toolkit.c.tdt_subdir = config.get('ckan.site_id', 'ckan').strip()
 
 
-    def create_tdt_source(self, entity):
+    def after_create(self, context, resource):
+        self.create_tdt_source(resource)
+
+        ckan.logic.action.update.resource_update(context, resource)
+
+    def before_update(self, context, current, resource):
+        #context['session'].begin(subtransactions=True)
+
+        #entity = context['model'].Resource.get(context['resource'].id)
+        self.create_tdt_source(resource)
+        #entity.save()
+
+    def create_tdt_source(self, entity_dict):
         """This method should add a resource configuration to The DataTank and return the uri
         """
 
@@ -97,22 +111,22 @@ class TDTPlugin(p.SingletonPlugin):
         # but previous one will not be deleted  -- phd, 23-12-2013
 
         # This should change towards a configurable array of supported formats
-        if( 'enable-tdt' in entity.extras and
-            entity.extras['enable-tdt'] == 'on' and
-            hasattr(entity, 'format') and
+        if( 'enable-tdt' in entity_dict and
+            entity_dict['enable-tdt'] == 'on' and
+            'format' in entity_dict and
             #( entity.format.lower() == "xml" or entity.format.lower() == "json")
-                entity.format.lower() in self.tdtDiscovery['resources']['definitions']['methods']['put']['body']
+                    entity_dict['format'].lower() in self.tdtDiscovery['resources']['definitions']['methods']['put']['body']
           ):
-            log.info("Adding to The DataTank since we have "+entity.format)
+            log.info("Adding to The DataTank since we have "+entity_dict['format'])
             # !! entity.name is not necessarily set in CKAN
-            if(entity.name == ""):
-                entity.name = "unnamed"
-            tdt_uri = self.tdt_host + "api/definitions/" + config.get('ckan.site_id', 'ckan').strip()+"/" + entity.id
+            if(entity_dict['name'] == ""):
+                entity_dict['name'] = "unnamed"
+            tdt_uri = self.tdt_host + "api/definitions/" + config.get('ckan.site_id', 'ckan').strip()+"/" + entity_dict['id']
             log.info(tdt_uri)
 
-            tdt_data = {'description': entity.description or 'No description provided','uri':entity.url, 'type': entity.format.lower() }
-            for field in entity.extras :
-                if field.startswith('tdt-') and entity.extras[field]: tdt_data[field[4:]] = entity.extras[field]
+            tdt_data = {'description': entity_dict['description'] or 'No description provided','uri':entity_dict['url'], 'type': entity_dict['format'].lower() }
+            for field in entity_dict :
+                if field.startswith('tdt-') and entity_dict[field]: tdt_data[field[4:]] = entity_dict[field]
 
             r = requests.put(tdt_uri,
                              auth=(self.tdt_user, self.tdt_pass),
@@ -121,19 +135,19 @@ class TDTPlugin(p.SingletonPlugin):
 
 
             if(r.status_code >= 200 and r.status_code < 300):
-                log.info(r.headers["content-location"])
-                entity.extras['tdt_uri']=self.tdt_host + config.get('ckan.site_id', 'ckan').strip()+"/" + entity.id
+                #log.info(r.headers["content-location"])
+                entity_dict['tdt_uri']=self.tdt_host + config.get('ckan.site_id', 'ckan').strip()+"/" + entity_dict['id']
             elif (r.status_code == 405):
                 # store the field anyway even if the request fails - temp fix for 405 errors
-                log.warn("TDT 405 Err: Dataset - \""+ entity.name +"\" [" +tdt_uri+ "] : "+r.text)
-                entity.extras['tdt_uri']=self.tdt_host + config.get('ckan.site_id', 'ckan').strip()+"/" + entity.id
+                log.warn("TDT 405 Err: Dataset - \""+ entity_dict['name'] +"\" [" +tdt_uri+ "] : "+r.text)
+                entity_dict['tdt_uri']=self.tdt_host + config.get('ckan.site_id', 'ckan').strip()+"/" + entity_dict['id']
             else:
-                log.error("Could not add dataset - \""+ entity.name +"\" - to The DataTank")
+                log.error("Could not add dataset - \""+ entity_dict['name'] +"\" - to The DataTank")
                 log.error(str(r.status_code) + " [" +tdt_uri+ "] : "+r.text)
                 log.error("Sent message >>> "+json.dumps(tdt_data)+" <<<")
                 h.flash_error("TDT Error : "+r.text)
         else:
-            entity.extras['tdt_uri'] = None
+            entity_dict.pop("tdt_uri", None)
         return
     
     def delete_tdt_source(self,entity):
