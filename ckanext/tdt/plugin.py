@@ -58,18 +58,10 @@ class TDTPlugin(p.SingletonPlugin):
     def can_preview(self, data_dict):
         """ This function will test whether the resource exists at TDT's side and if it returns a nice HTTP 200 OK
         """
-        rid = data_dict["resource"]["id"]
-        rname = data_dict["resource"]["name"]
-        if(rname == ""):
-            rname = "unnamed"
 
-        tdt_uri = None
-        #tdt_uri = self.tdt_host + config.get('ckan.site_id', 'ckan').strip()+ "/" + rid
-        for key,v in data_dict.get('resource').items():
-            if key == "tdt_uri":
-                tdt_uri = v
-
-        if tdt_uri:
+        resourceProps = data_dict.get('resource')
+        tdt_uri = resourceProps.get('tdt_uri')
+        if resourceProps.get('enable-tdt') == 'on' and tdt_uri and tdt_uri != "None":
             # don't do a remote check each time - too time consuming
             #r = requests.get(tdt_uri)
             #if r.status_code != 200: log.info(str(r.status_code) +" on "+tdt_uri+" : "+ r.text)
